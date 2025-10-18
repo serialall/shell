@@ -1,0 +1,26 @@
+name: Release ZIP
+on:
+  push:
+    tags: [ "v*" ]
+permissions:
+  contents: write
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create ZIPs
+        run: |
+          sudo apt-get update && sudo apt-get install -y zip
+          test -d bm_blackmarket && zip -r bm_blackmarket.zip bm_blackmarket || true
+          test -d kq_shell_lite && zip -r kq_shell_lite.zip kq_shell_lite || true
+      - name: Create GitHub Release and Upload
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            bm_blackmarket.zip
+            kq_shell_lite.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
